@@ -4,6 +4,6 @@ export async function upDir() {
   return await fs.mkdtemp("bitcask")
 }
 
-export async function downDir(dir) {
+export async function downDir(dir: string) {
   await fs.rm(dir, { recursive: true, force: true })  
 }

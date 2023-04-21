@@ -1,2 +1,7 @@
 * node-bitcask
 Partial implementation of bitcask.
+
+** Todo
+- Calculate checksums.
+- Add support for deletion using tombstone.
+

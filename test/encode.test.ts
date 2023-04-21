@@ -1,6 +1,6 @@
-import test from "node:test";
+import {test} from "node:test";
 import assert from "node:assert/strict";
-import { encode, now, headerSize } from "../index.js";
+import { encode, now, headerSize } from "../index";
 
 test("encode", () => {
   const key = "key";

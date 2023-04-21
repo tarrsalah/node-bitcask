@@ -1,8 +1,7 @@
-import test from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
-import { setTimeout } from "node:timers/promises";
-import { upDir, downDir } from "../test-utils.js";
-import { BitCask, BitFile} from "../index.js";
+import { upDir, downDir } from "../test-utils";
+import { BitCask, BitFile } from "../index";
 
 test("loadKeyDir", async () => {
   const dir = await upDir();
@@ -14,7 +13,12 @@ test("loadKeyDir", async () => {
     await bf.write("key-1", "value-1*");
     const bc = await BitCask.initBitCask(dir);
     assert.equal(bc.keyDir.size, 2);
-    
+
+    const value_1 = await bc.get("key-1");
+    assert.equal(value_1?.toString(), "value-1*");
+
+    const value_2 = await bc.get("key-2");
+    assert.equal(value_2?.toString(), "value-2");
   } finally {
     await downDir(dir);
   }
