@@ -1,5 +1,8 @@
 default: watchtest
 
+build:
+	pnpm build
+
 watchtest:
 	pnpm watchtest
 
@@ -8,4 +11,4 @@ test:
 	pnpm test
 
 clean:
-	rm -rf bitcask*
+	rm -rf _bitcask*

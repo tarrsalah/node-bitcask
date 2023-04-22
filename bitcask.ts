@@ -72,7 +72,7 @@ export function getFid(filename: string) {
 export async function getLastFid(dir: string): Promise<number> {
   const files = await scanFiles(dir);
   if (files.length > 0) {
-    return files[files.length - 1].fid;
+    return files[0].fid;
   }
   return 0;
 }
@@ -131,20 +131,28 @@ export async function readFiles(dir: string, writeFid: number) {
 }
 
 export class BitCask {
+  static defaultMaxSize = 1 << 10;
+
   dir: string;
   writeFile?: BitFile;
   readFiles: File[];
+  maxFileSize: number;
 
   keyDir: Map<string, Entry>;
 
-  constructor(dir: string) {
+  constructor(dir: string, maxFileSize?: number) {
     this.keyDir = new Map();
     this.readFiles = [];
     this.dir = dir;
+    if (maxFileSize === undefined) {
+      this.maxFileSize = BitCask.defaultMaxSize;
+    } else {
+      this.maxFileSize = maxFileSize;
+    }
   }
 
-  static async initBitCask(dir: string) {
-    const bc = new BitCask(dir);
+  static async initBitCask(dir: string, maxFileSize?: number) {
+    const bc = new BitCask(dir, maxFileSize);
     bc.writeFile = await BitFile.createBitFile(dir);
     bc.readFiles = await readFiles(dir, bc.writeFile.fid);
     await bc.#loadKeyDir();
@@ -155,6 +163,24 @@ export class BitCask {
     if (!this.writeFile) {
       throw new Error("No write file");
     }
+    const keySize = key.length;
+    const valueSize = value.length;
+
+    if (keySize + valueSize > this.maxFileSize) {
+      throw new Error("Values are too big to store");
+    }
+
+    if (
+      this.writeFile.offset + entrySize(key.length, value.length) >
+      this.maxFileSize
+    ) {
+      this.readFiles.push({
+        filename: this.writeFile.file,
+        fid: this.writeFile.fid,
+      });
+      this.writeFile = await BitFile.createBitFile(this.dir);
+    }
+
     const entry = await this.writeFile.write(key, value);
     this.keyDir.set(key, entry);
   }
