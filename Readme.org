@@ -2,6 +2,7 @@
 Partial implementation of bitcask.
 
 ** Todo
+- Use fsync.
+- Handle race conditions.
 - Calculate checksums.
 - Add support for deletion using tombstone.
-
