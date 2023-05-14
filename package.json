@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json --sourcemap",
-    "test": "pnpm c8 tap",
+    "test": "pnpm tap",
     "watchtest": "pnpm c8 tap --watch"
   },
   "keywords": [],
@@ -14,8 +14,10 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.15.13",
+    "@types/supertest": "^2.0.12",
     "@types/tap": "^15.0.8",
     "c8": "^7.13.0",
+    "supertest": "^6.3.3",
     "tap": "^16.3.4",
     "tsx": "^3.12.6",
     "typescript": "^5.0.4"

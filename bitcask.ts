@@ -32,6 +32,7 @@ export function encode(
 ) {
   const buf = Buffer.alloc(entrySize(keySize, valueSize));
   // header
+  // TODO: write crc32 in the first 4 bytes
   buf.writeUint32BE(timestamp, 4);
   buf.writeUint32BE(keySize, 8);
   buf.writeUint32BE(valueSize, 12);
@@ -40,12 +41,12 @@ export function encode(
   buf.write(key, headerSize, keySize, "binary");
   buf.write(value, headerSize + keySize, valueSize, "binary");
 
-  // TODO: calculate the crc32
   return buf;
 }
 
 export async function scanFiles(dir: string): Promise<File[]> {
   const files = await fs.readdir(dir);
+
   return files
     .filter((filename) => path.extname(filename) === ext)
     .map((filename) => ({
@@ -155,7 +156,7 @@ export class BitCask {
     const bc = new BitCask(dir, maxFileSize);
     bc.writeFile = await BitFile.createBitFile(dir);
     bc.readFiles = await readFiles(dir, bc.writeFile.fid);
-    await bc.#loadKeyDir();
+    await bc.#initKeyDir();
     return bc;
   }
 
@@ -202,7 +203,7 @@ export class BitCask {
     return buffer;
   }
 
-  async #loadKeyDir() {
+  async #initKeyDir() {
     for (const file of this.readFiles) {
       let b = await fs.readFile(path.join(this.dir, file.filename));
       let offset = 0;
